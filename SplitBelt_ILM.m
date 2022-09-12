@@ -27,8 +27,10 @@
 % This code was last updated by Surabhi Simha on Jan 25th 2020
 
 clear
+clc
 close all
 
+% fp = uigetdir(cd,'Select the Directory Where the Individual Data are Stored');
 fp = uigetdir(cd,'Select the Directory Where the Individual Data are Stored');
 fns = dir(fullfile(fp,'S*')); % Here "S" is the repeating term in every participant's folder name
 folderInd = [fns.isdir]'; % This just gets a number for each file in the folder, to easily refernece the file
@@ -39,13 +41,13 @@ varIN.g = 9.81; % The constant for acceleration due to gravity
 % We detect steps using ground reaction forces. In that algorithm, this is
 % used as the required minimum duration of a step, to eliminate false
 % detections
-varIN.minStepDur = 0.4;
+varIN.minStepDur = 0.3;
 
 %%
 % preallocation
 M = zeros(length(fns),1); %mass
-legLength = zeros(length(fns),1); %leg length
-subj = cell(length(fns),1); %each cell contains results for one subject
+% legLength = zeros(length(fns),1); %leg length
+results = cell(length(fns),1); %each cell contains results for one subject
 
 for i=1:length(fns) %loop to go through each participant
     load(fullfile(fp,fns(i).name,'Data.mat'));
@@ -54,14 +56,14 @@ for i=1:length(fns) %loop to go through each participant
     % the calcualation of mechanical power, but that mass is calulated on a
     % step by step basis. Details in computePower() function.
     M(i,1) = Data.Demographics.Mass; %participant's mass.
-    legLength(i,1) = str2num(Data.Demographics.Leg_Length)./1000; % converting to metres
+%     legLength(i,1) = str2num(Data.Demographics.Leg_Length)./1000; % converting to metres
     trials = Data.Trials;
     trialData = fieldnames(trials);
 
     % Analysis of all walking trials for one participant. All of the
     % analysed data for one participant is stored in their subj{i}
     % structure. 
-    [subj{i}] = analyzeSubject(Data,varIN,trialData,M(i));
+    [results{i}] = analyzeSubject(Data,varIN,trialData,M(i));
     
     display(strcat(num2str(i),' participants completed'))
 end
